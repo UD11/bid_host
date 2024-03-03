@@ -25,6 +25,8 @@
 	import Marquee from 'svelte-fast-marquee';
 	import poster from '../../assets/bid_page_logo.jpeg';
 
+	let bid_url = 'http://65.2.31.208/api';
+
 	let hidden10 = false;
 	let activateClickOutside = false;
 	let backdrop = false;
@@ -34,22 +36,33 @@
 		easing: sineIn
 	};
 
-	let current_player_value = 0;
+	let current_player_value = 100;
 	let current_team = 0;
-	let role = 'batsman';
+	let role = '';
 	let clickOutsideModal = false;
 	let showpage = true;
 
 	let role_list = [
 		{ value: 'Batsman', name: 'Batsman' },
-		{ value: 'Wicket-Keeper', name: 'Wicket-Keeper' },
+		{ value: 'Wicketkeeper', name: 'Wicket-Keeper' },
 		{ value: 'Bowler', name: 'Bowler' },
 		{ value: 'Bowling-All-Rounder', name: 'Bowling All-Rounder' },
 		{ value: 'Batting-All-Rounder', name: 'Batting All-Rounder' }
 	];
 
 	let team_list = [
-		{ value: 1, name: 'test_team' }
+		{ value: 2, name: 'INDIA' },
+		{ value: 3, name: 'ENGLAND' },
+		{ value: 4, name: 'NEW ZEALAND' },
+		{ value: 5, name: 'SCOTLAND' },
+		{ value: 6, name: 'AUSTRALIA' },
+		{ value: 7, name: 'NEPAL' },
+		{ value: 8, name: 'ZIMBABWE' },
+		{ value: 9, name: 'IRELAND' },
+		{ value: 10, name: 'SOUTH AFRICA' },
+		{ value: 11, name: 'WEST INDIES' },
+		{ value: 12, name: 'NETHERLANDS' },
+		{ value: 13, name: 'LAST TEAM' }
 		// { value: 2, name: 'knights' }
 	];
 
@@ -58,7 +71,7 @@
 	let allteamData = [];
 	// let allplayer = [];
 	let key = 'all';
-	let search_player_id = 2;
+	let search_player_id = null;
 	let records = {};
 	// let allteamData = [
 	// 	{
@@ -124,7 +137,17 @@
 	// ];
 
 	function handleinc() {
-		current_player_value += 1;
+		if (current_player_value < 1000) {
+			current_player_value += 50;
+		} else if (current_player_value >= 1000 && current_player_value < 2000) {
+			current_player_value += 100;
+		} else if (current_player_value >= 2000 && current_player_value < 3000) {
+			current_player_value += 150;
+		} else if (current_player_value >= 3000 && current_player_value < 4000) {
+			current_player_value += 200;
+		} else {
+			current_player_value += 250;
+		}
 		console.log(current_player_value);
 		current_player_value = current_player_value;
 	}
@@ -135,11 +158,11 @@
 	}
 	// $: curr_plval = current_player_value;
 
-	function handlevalue(event) {}
+	// function handlevalue(event) {}
 
 	async function fetchallPlayerData() {
 		try {
-			const response = await fetch(`http://52.66.75.73/api/getallplayers?key=${key}`);
+			const response = await fetch(`${bid_url}/getallplayers?key=${key}`);
 			const data = await response.json();
 
 			allplayer = data;
@@ -150,9 +173,10 @@
 
 	async function fetchPlayer() {
 		try {
-			const response = await fetch(`http://52.66.75.73/api/getnextplayer?role=${role}`);
+			const response = await fetch(`${bid_url}/getnextplayer?role=${role}`);
 			const data = await response.json();
 			player_data = data;
+			current_player_value = 100;
 			console.log(player_data);
 		} catch (error) {
 			console.error(error);
@@ -161,7 +185,7 @@
 
 	async function fetchAllTeamData() {
 		try {
-			const response = await fetch(`http://52.66.75.73/api/getallteam`);
+			const response = await fetch(`${bid_url}/getallteam`);
 			allteamData = await response.json();
 		} catch (error) {
 			console.error(error);
@@ -170,9 +194,7 @@
 
 	async function fetchPlayerById() {
 		try {
-			const response = await fetch(
-				`http://52.66.75.73/api/getplayerbyid?player_id=${search_player_id}`
-			);
+			const response = await fetch(`${bid_url}/getplayerbyid?player_id=${search_player_id}`);
 			player_data = await response.json();
 		} catch (error) {
 			console.log(error);
@@ -180,7 +202,7 @@
 	}
 	async function doTransferPlayer() {
 		try {
-			const response = await fetch(`http://52.66.75.73/api/transferplayer`, {
+			const response = await fetch(`${bid_url}/transferplayer`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -201,7 +223,7 @@
 
 	async function fetchRecords() {
 		try {
-			const response = await fetch(`http://52.66.75.73/api/records`);
+			const response = await fetch(`${bid_url}/records`);
 			records = await response.json();
 			console.log(records);
 		} catch (error) {
@@ -253,48 +275,54 @@
 
 	<div class="min-w-screen flex min-h-screen items-center justify-center bg-gray-100">
 		<div>
-			<div class="mt-4 rounded-2xl bg-white shadow-lg shadow-indigo-500">
-				<div class="flex flex-col">
-					<div class="flex flex-row">
-						<div>
-							<Avatar size="xl" class="h-96 w-96" rounded src={player_data.user_image} />
-						</div>
-						<Card class="shadow-lg shadow-green-400">
+			<div class="rounded-lg bg-black p-14 shadow-lg shadow-lime-600">
+				<div class="mb-4 flex justify-center font-mono text-3xl font-bold text-red-200">
+					-:CURRENTLY BIDDING FOR:-
+				</div>
+				<div class="mt-4 h-auto w-auto rounded-2xl bg-white shadow-lg shadow-indigo-500">
+					<div class="flex flex-col">
+						<div class="flex flex-row">
 							<div>
-								<h5 class="mb-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-									{player_data.firstname}
-								</h5>
-								<h4 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-									{player_data.lastname}
-								</h4>
-								<div class="flex items-center space-x-2">
-									<EnvelopeSolid class="text-black dark:text-white" />
-									<div class="">{player_data.email}</div>
-								</div>
-								<div class="mt-4 space-y-3 rounded-xl bg-white">
-									<div class="">
-										<span class="flex items-center"
-											><Indicator size="sm" color="red" class="me-1.5" />Playing Role :
-										</span>
-										<Badge border large color="red" class="ml-1 mt-1 text-xl"
-											>{player_data.player_position}</Badge
-										>
-									</div>
-									<div class="mt-2 flex">
-										<span class="flex items-center"
-											><Indicator size="sm" color="yellow" class="me-1.5" />Year :</span
-										>
-										<Badge border color="yellow" class="ml-2 text-sm">{player_data.year}</Badge>
-									</div>
-									<div class="">
-										<span class="flex items-center"
-											><Indicator size="sm" color="purple" class="me-1.5" />Department :</span
-										>
-										<Badge border large color="purple" class="ml-1 mt-2 text-xl">CSE - AIML</Badge>
-									</div>
-								</div>
+								<Avatar size="xl" class="h-96 w-96" rounded src={player_data.user_image} />
 							</div>
-						</Card>
+							<Card class="shadow-lg shadow-green-400">
+								<div>
+									<h5 class="mb-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+										{player_data.firstname}
+									</h5>
+									<h4 class="mb-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+										{player_data.lastname}
+									</h4>
+									<div class="flex items-center space-x-2">
+										<EnvelopeSolid class="text-black dark:text-white" />
+										<div class="">{player_data.email}</div>
+									</div>
+									<div class="mt-4 space-y-3 rounded-xl bg-white">
+										<div class="">
+											<span class="flex items-center"
+												><Indicator size="sm" color="red" class="me-1.5" />Playing Role :
+											</span>
+											<Badge border large color="red" class="ml-1 mt-1 text-xl"
+												>{player_data.player_position}</Badge
+											>
+										</div>
+										<div class="mt-2 flex">
+											<span class="flex items-center"
+												><Indicator size="sm" color="yellow" class="me-1.5" />Year :</span
+											>
+											<Badge border color="yellow" class="ml-2 text-sm">{player_data.year}</Badge>
+										</div>
+										<div class="">
+											<span class="flex items-center"
+												><Indicator size="sm" color="purple" class="me-1.5" />Department :</span
+											>
+											<Badge border large color="purple" class="ml-1 mt-2 text-xl">CSE - AIML</Badge
+											>
+										</div>
+									</div>
+								</div>
+							</Card>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -311,8 +339,8 @@
 			</div>
 		</div>
 
-		<div class="absolute left-0 flex h-screen w-80 items-center bg-white">
-			<div class="flex flex-col absolute top-0 justify-center self-center p-3">
+		<div class="absolute left-0 flex h-screen w-96 items-center bg-white">
+			<div class="absolute top-0 flex flex-col justify-center self-center p-3">
 				<div class="flex min-h-full flex-col rounded-lg shadow-lg shadow-green-300">
 					<div class="m-2 flex h-2/4 flex-col justify-center">
 						<Card class="h-4/5 shadow-md shadow-yellow-400">
@@ -402,7 +430,7 @@
 						</Card>
 					</div>
 					<card>
-						<div class=" m-5 w-4/5">
+						<div class="m-5 ml-8 w-4/5">
 							<img src={poster} alt="icl2024" />
 						</div>
 					</card>
@@ -410,7 +438,7 @@
 			</div>
 		</div>
 
-		<div class="absolute right-0 h-screen w-80 bg-white">
+		<div class="absolute right-0 h-screen w-96 bg-white">
 			<div class="flex justify-center">
 				<div
 					class="absolute flex items-center justify-center rounded-lg p-10 shadow-lg shadow-green-300"
@@ -461,11 +489,21 @@
 								Select Team to Transfer Player
 								<Select class="mt-2" items={team_list} bind:value={current_team} />
 							</Label>
-							<GradientButton
+							<!-- <GradientButton
 								on:click={() => (clickOutsideModal = true)}
 								class="mt-6 min-w-full"
-								color="purpleToPink">Transfer Player</GradientButton
+								color="redToPink">Transfer Player</GradientButton
+							> -->
+							<Button class="mt-6 min-w-full bg-red-600" on:click={() => (clickOutsideModal = true)}
+								>Confirm Transfer
+							</Button>
+
+							<div
+								class="mt-6 min-w-full rounded-lg p-2 pl-4 font-mono text-4xl font-bold text-yellow-100 shadow-lg shadow-yellow-400"
 							>
+								Intra Cricket League-2024
+							</div>
+
 							<Modal bind:open={clickOutsideModal} size="xs" autoclose>
 								<div class="text-center">
 									<ExclamationCircleOutline
